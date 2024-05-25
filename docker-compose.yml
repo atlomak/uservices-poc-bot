@@ -1,0 +1,7 @@
+services:
+  web:
+    build: front-spa
+    ports:
+      - "8080:80"
+    volumes:
+      - ./dist:/usr/share/nginx/html
