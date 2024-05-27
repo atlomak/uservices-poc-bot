@@ -5,31 +5,42 @@
       <span class="title-part-two">Microservices Vulnerabilities PoC</span>
     </h2>
     <div class="login-box">
+    <form @submit.prevent="login">
       <h1>Login</h1>
-      <input v-model="username" placeholder="Username" class="login-input" />
-      <input type="password" v-model="password" placeholder="Password" class="login-input" />
+      <input v-model="username" required placeholder="Username" class="login-input" />
+      <input type="password" v-model="password" required placeholder="Password" class="login-input" />
       <button @click="login" class="login-button">Login</button>
+    </form>
+    <p v-if="error">{{ error }}</p>
     </div>
   </div>
 </template>
 
 <script>
+import axios from '../axios';
+
 export default {
   data() {
     return {
       username: '',
-      password: ''
+      password: '',
+      error: null,
     };
   },
   methods: {
-    login() {
-      if (this.username === 'user' && this.password === 'pass') {
-        this.$router.push('/');
-      } else {
-        alert('Incorrect credentials!');
+    async login() {
+      try {
+        const response = await axios.post('/api/login', {
+          username: this.username,
+          password: this.password,
+        });
+        localStorage.setItem('token', response.data);
+        this.$router.push('/home');
+      } catch (err) {
+        this.error = err
       }
-    }
-  }
+    },
+  },
 };
 </script>
 

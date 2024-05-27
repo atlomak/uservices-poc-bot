@@ -4,7 +4,7 @@ import Login from '../views/LoginView.vue';
 
 const routes = [
   {
-    path: '/',
+    path: '/home',
     name: 'Home',
     component: Home
   },
@@ -12,6 +12,10 @@ const routes = [
     path: '/login',
     name: 'Login',
     component: Login
+  },
+  {
+    path: "/",
+    redirect: "/login"
   }
 ];
 
