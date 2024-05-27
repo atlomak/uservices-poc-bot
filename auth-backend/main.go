@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -27,7 +26,7 @@ var jwtKey = []byte("my_secret_key")
 
 func main() {
 	http.HandleFunc("/login", LoginHandler)
-	http.HandleFunc("/welcome", WelcomeHandler)
+	http.HandleFunc("/user", UserHandler)
 
 	log.Println("Starting app on port 8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
@@ -71,9 +70,9 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(tokenString))
 }
 
-// WelcomeHandler handles protected routes
-func WelcomeHandler(w http.ResponseWriter, r *http.Request) {
-	tokenStr := r.Header.Get("Authorization")
+func UserHandler(w http.ResponseWriter, r *http.Request) {
+	tokenStr := r.Header.Get("Authorization")[len("Bearer "):]
+	log.Printf("path: %s token: %s", r.URL.Path, tokenStr)
 	claims := &Claims{}
 
 	// Parse the token
@@ -96,6 +95,5 @@ func WelcomeHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Token is valid
-	response := fmt.Sprintf("Welcome %s!", claims.Username)
-	w.Write([]byte(response))
+	w.Write([]byte(claims.Username))
 }
