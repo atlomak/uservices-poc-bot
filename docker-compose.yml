@@ -1,7 +1,19 @@
 services:
   web:
     build: front-spa
+    container_name: front
     ports:
       - "8080:80"
     volumes:
       - ./dist:/usr/share/nginx/html
+    networks:
+      - app-network
+  api-auth:
+    build: auth-backend
+    container_name: auth-backend
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
