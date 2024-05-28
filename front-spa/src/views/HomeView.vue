@@ -2,12 +2,17 @@
   <div class="dashboard">
     <div class="left-section">
       <div class="tile user-tile">
-        <h2>Welcome, {{ user.name }}</h2>
+        <h2>Welcome, {{ user.username }}</h2>
         <p>Email: {{ user.email }}</p>
       </div>
       <div class="tile bot-grades-tile">
-        <h2>Your BOT Grades</h2>
-        <p>Placeholder for BOT grades...</p>
+        <h2>Your grades:</h2>
+          <div v-if="grades.length">
+            <p v-for="course in grades" :key="course.course_name">
+              <strong>{{ course.course_name }}:</strong> {{ course.grades.join(', ') }}
+            </p>
+          </div>
+        <p v-else>Loading grades...</p>
       </div>
     </div>
     <div class="right-section">
@@ -22,24 +27,36 @@
 
 <script>
 // Import the configured Axios instance
-import axios from '../axios';
+import axios from 'axios';
 
 export default {
   data() {
     return {
       user: {},
+      grades: [],
     };
   },
   async created() {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('/api/user', {
+      
+      // Fetch user data
+      const userResponse = await axios.get('/api/auth/user', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      this.user = response.data;
+      this.user = userResponse.data;
+      
+      // Fetch grades data
+      const gradesResponse = await axios.get('/api/data/grades', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      this.grades = gradesResponse.data.courses;
     } catch (err) {
+      console.log(err)
       this.$router.push('/login');
     }
   },
@@ -88,7 +105,22 @@ h2 {
   color: #333;
 }
 
+h3 {
+  margin-top: 1rem;
+  color: #555;
+}
+
 p {
+  color: #666;
+}
+
+ul {
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+}
+
+li {
   color: #666;
 }
 
