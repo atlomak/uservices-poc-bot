@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -19,6 +20,11 @@ type UserCredentials struct {
 type Claims struct {
 	Username string `json:"username"`
 	jwt.RegisteredClaims
+}
+
+type Response struct {
+	Username string `json:"username"`
+	Email    string `json:"email"`
 }
 
 // jwtKey used to sign tokens
@@ -41,12 +47,10 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// This should be replaced with actual user authentication logic
-	if creds.Username != "user" || creds.Password != "pass" {
+	if !inFakeUserRepo(creds.Username, creds.Password) {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
-
 	// Set expiration time of the token
 	expirationTime := time.Now().Add(1 * time.Hour)
 	claims := &Claims{
@@ -95,5 +99,34 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Token is valid
-	w.Write([]byte(claims.Username))
+	response, _ := FakeUserRepo(claims.Username)
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
+}
+
+func FakeUserRepo(username string) (*Response, bool) {
+	if username == "user" {
+		return &Response{username, fmt.Sprintf("%s@example.com", username)}, true
+	}
+	if username == "userA" {
+		return &Response{username, fmt.Sprintf("%s@example.com", username)}, true
+	}
+	if username == "userB" {
+		return &Response{username, fmt.Sprintf("%s@example.com", username)}, true
+	}
+	return nil, false
+}
+
+func inFakeUserRepo(username, password string) bool {
+	if username == "user" && password == "pass" {
+		return true
+	}
+	if username == "userA" && password == "passA" {
+		return true
+	}
+	if username == "userB" && password == "passB" {
+		return true
+	}
+	return false
 }
