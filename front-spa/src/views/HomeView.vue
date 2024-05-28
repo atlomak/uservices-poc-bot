@@ -7,18 +7,25 @@
       </div>
       <div class="tile bot-grades-tile">
         <h2>Your grades:</h2>
-          <div v-if="grades.length">
-            <p v-for="course in grades" :key="course.course_name">
-              <strong>{{ course.course_name }}:</strong> {{ course.grades.join(', ') }}
-            </p>
-          </div>
+        <div v-if="grades.length">
+          <p v-for="course in grades" :key="course.course_name">
+            <strong>{{ course.course_name }}:</strong> {{ course.grades.join(', ') }}
+          </p>
+        </div>
         <p v-else>Loading grades...</p>
       </div>
     </div>
     <div class="right-section">
-      <div class="tile events-tile">
-        <h2>Incoming Events</h2>
-        <p>Placeholder for upcoming events...</p>
+      <div class="tile user-info-tile">
+        <h2>User Info</h2>
+        <div v-if="userInfo">
+          <p><strong>Document ID:</strong> {{ userInfo.document_id }}</p>
+          <p><strong>Pending Payments:</strong></p>
+          <ul>
+            <li v-for="payment in userInfo.pending_payments" :key="payment">{{ payment }}</li>
+          </ul>
+        </div>
+        <p v-else>Loading user info...</p>
       </div>
     </div>
     <button class="logout-btn" @click="logout">Logout</button>
@@ -34,6 +41,7 @@ export default {
     return {
       user: {},
       grades: [],
+      userInfo: null,
     };
   },
   async created() {
@@ -55,8 +63,16 @@ export default {
         },
       });
       this.grades = gradesResponse.data.courses;
+
+      // Fetch user info data
+      const userInfoResponse = await axios.get('/api/data/info', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      this.userInfo = userInfoResponse.data;
     } catch (err) {
-      console.log(err)
+      console.log(err);
       this.$router.push('/login');
     }
   },
@@ -139,5 +155,18 @@ li {
 
 .logout-btn:hover {
   background-color: #0056b3;
+}
+
+.user-info-tile p {
+  margin: 0.5rem 0;
+}
+
+.user-info-tile ul {
+  margin-top: 0.5rem;
+}
+
+.user-info-tile ul li {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #ddd;
 }
 </style>
