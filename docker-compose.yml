@@ -13,6 +13,11 @@ services:
     container_name: auth-backend
     networks:
       - app-network
+  api-data:
+    build: data-backend
+    container_name: data-backend
+    networks:
+      - app-network
 
 networks:
   app-network:
